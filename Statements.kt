@@ -19,7 +19,6 @@ fun eval(s : Statement) {
                     eval(it)
                 }
             }else {
-                // google ?. behaviour
                 s.elseBlock?.forEach {
                     eval(it)
                 }
