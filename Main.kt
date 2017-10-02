@@ -3,7 +3,7 @@ import java.util.*
 
 
 // order and the or
-fun solve() {
+fun go() {
 
     memory["PI"] = DoubleValue(3.14)
 
@@ -60,7 +60,7 @@ var st = StringTokenizer("")
 
 fun main(args: Array<String>) {
     var start = System.currentTimeMillis()
-    solve()
+    go()
     pw.close()
     br.close()
     //if(!ONLINE_JUDGE)
