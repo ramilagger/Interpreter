@@ -28,7 +28,7 @@ sealed class Value {
             when (a) {
                 is DoubleValue -> DoubleValue(a.value + this.value)
                 is IntValue -> DoubleValue(a.value + this.value)
-                is StringValue -> TODO()
+                is StringValue -> StringValue(this.value.toString() + a.value)
                 is BoolValue -> TODO()
                 is CharValue -> TODO()
             }
