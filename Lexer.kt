@@ -1,28 +1,30 @@
 
-
 // Tokens
 sealed class Token
 object Plus : Token()
 object Multiplication : Token()
 object Division : Token()
 object Subtraction : Token()
-object Equal : Token()
 object EOF : Token()
-object LP : Token()                                  // left parentheses
+object LP : Token()                                   // left parentheses
 object RP : Token()
 object Print : Token()
-object IntType : Token()                             // int type
+object IntType : Token()                              // int type
 object DoubleType : Token()
 object StringType : Token()
+object CharType : Token()
 object If : Token()
 object Else : Token()
 object CLP : Token()                                  // Curly LP
 object RLP : Token()
+object While : Token()
+
+
 object SemiColon : Token()
 data class Var(val name : String) : Token()
 data class StringToken(val value: StringValue) : Token()
 data class Number(val value : NumberValue) : Token()
-
+data class CharToken(val value: Char) : Token()
 
 
 class Lexer(val text : String) {
@@ -42,6 +44,8 @@ class Lexer(val text : String) {
 
     fun lex(): List<Token> {
         val tokens = ArrayList<Token>()
+        val a : Int = 39
+        println(a.toChar())
         while (peek(0) != 0.toChar()) {
             if (peek(0).isDigit())
                 tokens.add(parseDigit())
@@ -49,6 +53,8 @@ class Lexer(val text : String) {
                 tokens.add(parseWord())
             if(peek(0) == '"')
                 tokens.add(parseString())
+            if(peek(0) == a.toChar())
+             tokens.add(parseChar())
             else if ("+*-/(){};".indexOf(peek(0)) > -1)
                 tokens.add(parseOperator())
             else next()
@@ -57,9 +63,18 @@ class Lexer(val text : String) {
         return tokens
     }
 
+    private fun  parseChar(): Token {
+        next()
+        var a = peek(0)
+        next()
+        next()
+        return CharToken(a)
+    }
+
     private fun  parseString(): Token {
         next()
         var sb = StringBuilder()
+
         while (peek(0) != '"') {
             sb.append(peek(0))
             next()
@@ -83,8 +98,10 @@ class Lexer(val text : String) {
               "print" -> Print
               "if" -> If
               "else" -> Else
+              "while" -> While
               "double" -> DoubleType
               "string" -> StringType
+              "char" -> CharType
               else -> Var(s)
         }
     }
@@ -106,7 +123,6 @@ class Lexer(val text : String) {
             Number(DoubleValue(sb.toString().toDouble()))
     }
 
-
     private fun parseOperator(): Token {
         next()
         return when (peek(-1)) {
@@ -119,7 +135,6 @@ class Lexer(val text : String) {
             '{' -> CLP
             '}' -> RLP
             ';' -> SemiColon
-            //'=' add
             else -> throw RuntimeException()
         }
     }

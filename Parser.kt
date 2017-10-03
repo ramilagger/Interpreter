@@ -18,24 +18,63 @@ data class Divide(val a : Expr,val b : Expr) : Expr()
 data class Constant(val a : NumberValue) : Expr()
 data class Variable(val name : String) : Expr()
 
+sealed class StringExpr : Expr()
+data class ConstantString(val a : StringValue) : StringExpr()
+//data class Concatenation(val a : Expr,val b : Expr) : StringExpr()
+
+//data class ConcatenationString(val a: StringExpr,val b : StringExpr) : StringExpr()
+//data class ConcatenationExpr(val a : StringExpr,val b : Expr) : StringExpr()
+
+
+/*
+// String eval
+fun seval(expr: StringExpr) : StringValue = when(expr) {
+    is ConstantString -> expr.a
+    is ConcatenationString ->seval(expr.a) + seval(expr.b)
+}
+*/
+
 
 // Evaluation of expressions
 // TODO add return values as one type (float boolean and stuff) and smart casting // done
-fun eval(expr: Expr) : NumberValue = when(expr) {
-    is Times -> eval(expr.a) * eval(expr.b)
-    is Divide -> {
-        val res = eval(expr.b)
-        if(res == IntValue(0) || res == DoubleValue(0.0))
-            throw RuntimeException("Division by 0")
-        eval(expr.a) / res
+fun eval(expr: Expr) : Value = when(expr) {
+    is Times -> {
+        val a = eval(expr.a)
+        val b = eval(expr.b)
+        if(a is NumberValue && b is NumberValue) a * b
+            else throw RuntimeException("Cannot multiply $a and $b")
     }
-    is Sum -> eval(expr.a) + eval(expr.b)
-    is Subtract -> eval(expr.a) - eval(expr.b)
+    is Divide -> {
+        val a = eval(expr.a)
+        val b = eval(expr.b)
+        if(b == IntValue(0) || b == DoubleValue(0.0))
+            throw RuntimeException("Division by 0")
+        if(a is NumberValue && b is NumberValue) a / b
+        else throw RuntimeException("Cannot divide $a and $b")
+    }
+    is Sum -> {
+        val a = eval(expr.a)
+        val b = eval(expr.b)
+        a + b
+        //else throw RuntimeException("Cannot multiply $a and $b")
+
+    }
+    is Subtract -> {
+        val a = eval(expr.a)
+        val b = eval(expr.b)
+        if(a is NumberValue && b is NumberValue) a + b
+        else throw RuntimeException("Cannot multiply $a and $b")
+    }
     is Constant -> expr.a
+
     is Variable -> when(memory[expr.name]) {
         is IntValue, is DoubleValue -> memory[expr.name] as NumberValue
+        is StringValue -> memory[expr.name]!!
         else -> throw RuntimeException()
     }
+
+    is ConstantString -> expr.a
+    //is Concatenation -> eval(expr.a) + eval(expr.b)
 }
 
 // Binary expressions
@@ -45,14 +84,6 @@ data class And(val a : BExpr, val b : BExpr) : BExpr()
 data class Or(val a : BExpr,val b : BExpr) : BExpr()
 data class LessThan(val a : Expr,val b : Expr) : BExpr()
 data class MoreThan(val a : Expr, val b : Expr) : BExpr()
-
-
-/*
-
-fun beval(bexpr: BExpr) = when(bexpr) {
-    is And -> eval(bexpr.a)
-}
-*/
 
 
 class Parser(val tokens : List<Token>) {
@@ -65,7 +96,6 @@ class Parser(val tokens : List<Token>) {
             return EOF
         return tokens[pos]
     }
-
 
     fun next(): Token {
         cur++
@@ -87,7 +117,7 @@ class Parser(val tokens : List<Token>) {
     fun parseStatement() : Statement {
         val token = peek(0)
         var st  = when(token) {
-            is IntType, is DoubleType -> parseAssignment()
+            is IntType, is DoubleType,is StringType -> parseAssignment()
             /* add var
             is Var ->  {
                 whentoken.name
@@ -177,9 +207,11 @@ class Parser(val tokens : List<Token>) {
         else {
             var variable = Variable(a.name)
             next() // skip name
+            //if(type == StringType) return StringAssignmentStatement(variable);
             return AssignmentStatement(variable, additive())
         }
     }
+
 
 
     private fun additive(): Expr {
@@ -223,8 +255,8 @@ class Parser(val tokens : List<Token>) {
         val temp = peek(0)
         next()
         when (temp) {
-            is Number ->
-                return Constant(temp.value)
+            is Number ->      return Constant(temp.value)
+            is StringToken -> return ConstantString(temp.value)
             is Var -> {
                 //if(memory[temp.name] == null) throw Exception("${temp.name} is null")
                 return Variable(temp.name)
@@ -232,11 +264,11 @@ class Parser(val tokens : List<Token>) {
             is LP -> {
                 val res = additive()
                 next() // skip Right Parenthesis
-               // System.err.println("skipped  ${peek(-1)}")
                 return res
             }
             else -> throw RuntimeException("Illegal Operation at pos $cur at token $temp")
         }
     }
+
 }
 

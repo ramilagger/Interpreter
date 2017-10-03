@@ -2,24 +2,45 @@
  * Created by ramilagger on 30/09/17.
  */
 
-sealed class Value
-sealed class NumberValue : Value() {
+sealed class Value {
 
 
-    operator fun plus(a: NumberValue): NumberValue = when(this) {
-            is IntValue -> {
-                when(a) {
-                    is IntValue -> IntValue(a.value + this.value)
-                    is DoubleValue -> DoubleValue(a.value + this.value)
-                }
+    // + operator between different data types
+    operator fun plus(a: Value): Value = when (this) {
+        is IntValue -> {
+            when (a) {
+                is IntValue -> IntValue(a.value + this.value)
+                is DoubleValue -> DoubleValue(a.value + this.value)
+                is StringValue -> StringValue(a.value + this.value)
+                is BoolValue -> StringValue((if (a.value) "true" else "false") + this.value)
+                is CharValue -> IntValue(a.value.toInt() + this.value)
             }
-            is DoubleValue -> {
-                when(a) {
-                    is DoubleValue -> DoubleValue(a.value + this.value)
-                    is IntValue -> DoubleValue(a.value + this.value)
-                }
+        }
+        is DoubleValue -> {
+            when (a) {
+                is DoubleValue -> DoubleValue(a.value + this.value)
+                is IntValue -> DoubleValue(a.value + this.value)
+                is StringValue -> TODO()
+                is BoolValue -> TODO()
+                is CharValue -> TODO()
             }
+        }
+
+        is StringValue -> when (a) {
+            is IntValue -> StringValue(this.value + a.value)
+            is DoubleValue -> StringValue(this.value + a.value)
+            is StringValue -> StringValue(a.value + this.value)
+            is BoolValue -> StringValue((if (a.value) "true" else "false") + this.value)
+            is CharValue -> StringValue(this.value + a.value.toString())
+        }
+        is BoolValue -> TODO()
+        is CharValue -> TODO()
     }
+}
+
+
+// + - / * TODO add %
+sealed class NumberValue : Value() {
 
 
     operator fun minus(a: NumberValue): NumberValue = when(this) {
@@ -27,6 +48,7 @@ sealed class NumberValue : Value() {
             when(a) {
                 is IntValue -> IntValue(a.value - this.value)
                 is DoubleValue -> DoubleValue(a.value - this.value)
+
             }
         }
         is DoubleValue -> {
@@ -79,10 +101,19 @@ data class IntValue(val value: Int) : NumberValue() {
         return value.toString()
     }
 }
+
 data class DoubleValue(val value : Double) : NumberValue() {
     override fun toString(): String {
         return value.toString()
     }
 }
-data class StringValue(val value: String) : Value()
+
+data class StringValue(val value: String) : Value() {
+    override fun toString(): String {
+        return value
+    }
+}
+
 data class BoolValue(val value: Boolean) : Value()
+
+data class CharValue(val value: Char) : Value()

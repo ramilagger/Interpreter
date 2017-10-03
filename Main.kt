@@ -8,19 +8,10 @@ fun go() {
     memory["PI"] = DoubleValue(3.14)
 
     var a = """
-            double b = 10 + PI * 2;
+            string b = 6 + "A" + "6";
+            if(0) print(b);
+            else print("well 2 + 2 = 4" + (2 + 2));
             print(b);
-            int a1 = 6 + 6 * 2;
-            print(a1);
-            if(0)
-            print(a1 + b);
-            else {
-              double x = b + 1;
-              print(b);
-              if(x) {
-                print(x);
-              }
-            }
          """
 
     Parser(Lexer(a).lex()).parse().forEach {
