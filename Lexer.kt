@@ -1,4 +1,3 @@
-
 // Tokens
 sealed class Token
 object Plus : Token()
@@ -18,9 +17,8 @@ object Else : Token()
 object CLP : Token()                                  // Curly LP
 object RLP : Token()
 object While : Token()
-
-
 object SemiColon : Token()
+object BooleanType : Token()
 data class Var(val name : String) : Token()
 data class StringToken(val value: StringValue) : Token()
 data class Number(val value : NumberValue) : Token()
@@ -94,15 +92,16 @@ class Lexer(val text : String) {
         }
         var s = sb.toString()
         return when(s) {
-              "int" -> IntType
-              "print" -> Print
-              "if" -> If
-              "else" -> Else
-              "while" -> While
-              "double" -> DoubleType
-              "string" -> StringType
-              "char" -> CharType
-              else -> Var(s)
+            "char" -> CharType
+            "int" -> IntType
+            "double" -> DoubleType
+            "string" -> StringType
+            "bool" -> BooleanType
+            "print" -> Print
+            "if" -> If
+            "else" -> Else
+            "while" -> While
+            else -> Var(s)
         }
     }
 
@@ -138,6 +137,5 @@ class Lexer(val text : String) {
             else -> throw RuntimeException()
         }
     }
-
 
 }

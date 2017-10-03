@@ -8,9 +8,11 @@ fun go() {
     memory["PI"] = DoubleValue(3.14)
 
     var a = """
-            string b = 6 + "A" + "6";
+            string b = 3 + 3 + "A" + "76";
+            print(b)
+            b = "666";
             if(0) print(b);
-            else print("well 2 + 2 = 4" + (2 + 2));
+            else print("well 2 + 2 * 2 = " + (2 + 2 * 2));
             print(b);
          """
 

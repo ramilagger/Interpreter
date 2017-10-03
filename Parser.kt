@@ -17,13 +17,9 @@ data class Subtract(val a : Expr,val b : Expr) : Expr()
 data class Divide(val a : Expr,val b : Expr) : Expr()
 data class Constant(val a : NumberValue) : Expr()
 data class Variable(val name : String) : Expr()
-
 sealed class StringExpr : Expr()
 data class ConstantString(val a : StringValue) : StringExpr()
-//data class Concatenation(val a : Expr,val b : Expr) : StringExpr()
-
-//data class ConcatenationString(val a: StringExpr,val b : StringExpr) : StringExpr()
-//data class ConcatenationExpr(val a : StringExpr,val b : Expr) : StringExpr()
+sealed class BinaryExpressions
 
 
 /*
@@ -66,15 +62,8 @@ fun eval(expr: Expr) : Value = when(expr) {
         else throw RuntimeException("Cannot multiply $a and $b")
     }
     is Constant -> expr.a
-
-    is Variable -> when(memory[expr.name]) {
-        is IntValue, is DoubleValue -> memory[expr.name] as NumberValue
-        is StringValue -> memory[expr.name]!!
-        else -> throw RuntimeException()
-    }
-
+    is Variable -> memory[expr.name]!!
     is ConstantString -> expr.a
-    //is Concatenation -> eval(expr.a) + eval(expr.b)
 }
 
 // Binary expressions
@@ -118,11 +107,10 @@ class Parser(val tokens : List<Token>) {
         val token = peek(0)
         var st  = when(token) {
             is IntType, is DoubleType,is StringType -> parseAssignment()
-            /* add var
             is Var ->  {
-                whentoken.name
+                parseReAssignment()
+                //else throw RuntimeException("${token.name} undefined")
             }
-            */
             is Print -> {
                 next() // skip print
                 PrintStatement(additive())
@@ -140,6 +128,19 @@ class Parser(val tokens : List<Token>) {
 
         }
         return st
+    }
+
+    private fun  parseReAssignment(): Statement {
+        val a = peek(0)
+        if(a !is Var)
+            throw Exception("Expected Type Var but encountered ${peek(0)}")
+        else {
+            var variable = Variable(a.name)
+
+            next() // skip name
+
+            return AssignmentStatement(variable,a, additive())
+        }
     }
 
     private fun  parseIfElse() : Statement {
@@ -199,7 +200,7 @@ class Parser(val tokens : List<Token>) {
 
     private fun parseAssignment() : AssignmentStatement {
         val type = peek(0)
-        System.err.println("here" + type)
+        System.err.println("here " + type)
         //val a = peek(0) // skip type for now add equal as token
         val a = next()
         if(a !is Var)
@@ -207,8 +208,8 @@ class Parser(val tokens : List<Token>) {
         else {
             var variable = Variable(a.name)
             next() // skip name
-            //if(type == StringType) return StringAssignmentStatement(variable);
-            return AssignmentStatement(variable, additive())
+
+            return AssignmentStatement(variable,type, additive())
         }
     }
 

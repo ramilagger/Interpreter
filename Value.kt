@@ -5,15 +5,23 @@
 sealed class Value {
 
 
+    fun toToken() = when(this) {
+        is IntValue -> IntType
+        is DoubleValue -> DoubleType
+        is StringValue -> StringType
+        is BoolValue -> TODO()
+        is CharValue -> CharType
+    }
+
     // + operator between different data types
     operator fun plus(a: Value): Value = when (this) {
         is IntValue -> {
             when (a) {
                 is IntValue -> IntValue(a.value + this.value)
                 is DoubleValue -> DoubleValue(a.value + this.value)
-                is StringValue -> StringValue(a.value + this.value)
-                is BoolValue -> StringValue((if (a.value) "true" else "false") + this.value)
-                is CharValue -> IntValue(a.value.toInt() + this.value)
+                is StringValue -> StringValue(this.value.toString() + a.value)
+                is BoolValue -> StringValue(this.value.toString() + (if (a.value) "true" else "false"))
+                is CharValue -> IntValue(this.value + a.value.toInt())
             }
         }
         is DoubleValue -> {
@@ -29,8 +37,8 @@ sealed class Value {
             when (a) {
                 is IntValue -> StringValue(this.value + a.value)
                 is DoubleValue -> StringValue(this.value + a.value)
-                is StringValue -> StringValue(a.value + this.value)
-                is BoolValue -> StringValue((if (a.value) "true" else "false") + this.value)
+                is StringValue -> StringValue(this.value + a.value)
+                is BoolValue -> StringValue(this.value + if (a.value) "true" else "false")
                 is CharValue -> StringValue(this.value + a.value.toString())
             }
         }
@@ -126,3 +134,5 @@ data class StringValue(val value: String) : Value() {
 data class BoolValue(val value: Boolean) : Value()
 
 data class CharValue(val value: Char) : Value()
+
+
