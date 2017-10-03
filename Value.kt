@@ -25,16 +25,26 @@ sealed class Value {
                 is CharValue -> TODO()
             }
         }
-
-        is StringValue -> when (a) {
-            is IntValue -> StringValue(this.value + a.value)
-            is DoubleValue -> StringValue(this.value + a.value)
-            is StringValue -> StringValue(a.value + this.value)
-            is BoolValue -> StringValue((if (a.value) "true" else "false") + this.value)
-            is CharValue -> StringValue(this.value + a.value.toString())
+        is StringValue -> {
+            when (a) {
+                is IntValue -> StringValue(this.value + a.value)
+                is DoubleValue -> StringValue(this.value + a.value)
+                is StringValue -> StringValue(a.value + this.value)
+                is BoolValue -> StringValue((if (a.value) "true" else "false") + this.value)
+                is CharValue -> StringValue(this.value + a.value.toString())
+            }
         }
+
         is BoolValue -> TODO()
-        is CharValue -> TODO()
+        is CharValue -> {
+            when (a) {
+                is IntValue -> IntValue(a.value + this.value.toInt())
+                is DoubleValue -> TODO()
+                is StringValue -> StringValue(a.value + this.value)
+                is BoolValue -> TODO()
+                is CharValue -> IntValue(a.value.toInt() + this.value.toInt())
+            }
+        }
     }
 }
 
@@ -94,7 +104,6 @@ sealed class NumberValue : Value() {
 
 
 }
-
 
 data class IntValue(val value: Int) : NumberValue() {
     override fun toString(): String {
