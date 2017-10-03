@@ -120,6 +120,10 @@ class Parser(val tokens : List<Token>) {
                 next() // skip if
                 parseIfElse()
             }
+            is While -> {
+                next()
+                parseWhile()
+            }
             else ->
                 throw RuntimeException("at Token $token")
         }
@@ -128,6 +132,18 @@ class Parser(val tokens : List<Token>) {
 
         }
         return st
+    }
+
+    private fun  parseWhile(): Statement {
+        val expr = additive()
+        var statements : ArrayList<Statement>
+        if(peek(0) == CLP) {
+            statements = parseCodeBlock()
+        }else {
+            statements = ArrayList()
+            statements.add(parseStatement())
+        }
+        return WhileStatement(expr,statements)
     }
 
     private fun  parseReAssignment(): Statement {
