@@ -8,10 +8,18 @@ fun go() {
     memory["PI"] = DoubleValue(3.14)
 
     var a = """
+            int a = 34
             string b = 3 + 3 + "A" + "76";
-            print(b)
+            print(a + b)
             b = "666";
-            if(0) print(b);
+            int cnt = 1;
+            string s = "1";
+            while(cnt - 11) {
+                print("iteration " + cnt + ": " + s);
+                cnt = cnt + 1;
+                s = s + ", " + cnt;
+            }
+            if(1) print(b + (6 + 6));
             else print("well 2 + 2 * 2 = " + (2 + 2 * 2));
             print(b);
          """

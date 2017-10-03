@@ -64,15 +64,15 @@ sealed class NumberValue : Value() {
     operator fun minus(a: NumberValue): NumberValue = when(this) {
         is IntValue -> {
             when(a) {
-                is IntValue -> IntValue(a.value - this.value)
-                is DoubleValue -> DoubleValue(a.value - this.value)
+                is IntValue -> IntValue(this.value - a.value)
+                is DoubleValue -> DoubleValue(this.value - a.value)
 
             }
         }
         is DoubleValue -> {
             when(a) {
-                is DoubleValue -> DoubleValue(a.value - this.value)
-                is IntValue -> DoubleValue(a.value - this.value)
+                is DoubleValue -> DoubleValue(this.value - a.value)
+                is IntValue -> DoubleValue(this.value - a.value)
             }
         }
     }

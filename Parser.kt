@@ -22,14 +22,6 @@ data class ConstantString(val a : StringValue) : StringExpr()
 sealed class BinaryExpressions
 
 
-/*
-// String eval
-fun seval(expr: StringExpr) : StringValue = when(expr) {
-    is ConstantString -> expr.a
-    is ConcatenationString ->seval(expr.a) + seval(expr.b)
-}
-*/
-
 
 // Evaluation of expressions
 // TODO add return values as one type (float boolean and stuff) and smart casting // done
@@ -58,7 +50,7 @@ fun eval(expr: Expr) : Value = when(expr) {
     is Subtract -> {
         val a = eval(expr.a)
         val b = eval(expr.b)
-        if(a is NumberValue && b is NumberValue) a + b
+        if(a is NumberValue && b is NumberValue) a - b
         else throw RuntimeException("Cannot multiply $a and $b")
     }
     is Constant -> expr.a
@@ -198,6 +190,7 @@ class Parser(val tokens : List<Token>) {
             System.err.println(token)
             when (token) {
                 is IntType,is DoubleType -> list.add(parseAssignment())
+                is Var -> list.add(parseReAssignment())
                 is Print -> {
                     next()  // skip print
                     list.add(PrintStatement(additive()))
