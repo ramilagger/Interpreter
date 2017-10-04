@@ -17,6 +17,13 @@ object Else : Token()
 object CLP : Token()                                  // Curly LP
 object RLP : Token()
 object While : Token()
+object Equalility : Token()
+object NotEquality : Token()
+object LessThanSign : Token()
+object MoreThanSign : Token()
+object OR : Token()
+object AND : Token()
+
 object SemiColon : Token()
 object BooleanType : Token()
 data class Var(val name : String) : Token()
@@ -53,7 +60,7 @@ class Lexer(val text : String) {
                 tokens.add(parseString())
             if(peek(0) == a.toChar())
              tokens.add(parseChar())
-            else if ("+*-/(){};".indexOf(peek(0)) > -1)
+            else if ("+*-/(){};<>".indexOf(peek(0)) > -1)
                 tokens.add(parseOperator())
             else next()
         }
@@ -134,6 +141,23 @@ class Lexer(val text : String) {
             '{' -> CLP
             '}' -> RLP
             ';' -> SemiColon
+            '<' -> LessThanSign
+            '>' -> MoreThanSign
+            '|' -> {
+                if(peek(1) == '|') {
+                    next()
+                    Equalility
+                }
+                else throw RuntimeException("For now")
+            }
+            '&' -> {
+                if(peek(1) == '&') {
+                    next()
+                    Equalility
+                }
+                else throw RuntimeException("For now")
+            }
+
             else -> throw RuntimeException()
         }
     }

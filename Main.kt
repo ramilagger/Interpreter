@@ -6,13 +6,13 @@ fun go() {
     memory["PI"] = DoubleValue(3.14)
 
     var a = """
-            double a = 34.0;
-            string b = 3 + 3 + "A" + "76";
+            int a = 4 * 100;
+            string b = 3 + 3 + "A" + ((4 * 5) / 10) + "76";
             print(a + b);
             b = "Hello World!";
             int cnt = 1;
             string s = "1";
-            while(cnt - 11) {
+            while(cnt < 11) {
                 print("iteration " + cnt + ": " + s);
                 cnt = cnt + 1;
                 s = s + ", " + cnt;

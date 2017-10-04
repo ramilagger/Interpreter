@@ -5,7 +5,7 @@
 sealed class Value {
 
 
-    fun toToken() = when(this) {
+    fun toToken() = when (this) {
         is IntValue -> IntType
         is DoubleValue -> DoubleType
         is StringValue -> StringType
@@ -54,7 +54,19 @@ sealed class Value {
             }
         }
     }
+
+
+    operator fun compareTo(a: Value): Int = when (this) {
+        is IntValue ->
+            when (a) {
+                is IntValue -> this.value.compareTo(a.value)
+                is DoubleValue -> this.value.compareTo(a.value)
+                else -> TODO()
+            }
+        else -> TODO()
+    }
 }
+
 
 
 // + - / * TODO add %
@@ -82,14 +94,14 @@ sealed class NumberValue : Value() {
     operator fun div(a: NumberValue): NumberValue = when(this) {
         is IntValue -> {
             when(a) {
-                is IntValue -> IntValue(a.value / this.value)
-                is DoubleValue -> DoubleValue(a.value / this.value)
+                is IntValue -> IntValue(this.value / a.value)
+                is DoubleValue -> DoubleValue(this.value / a.value)
             }
         }
         is DoubleValue -> {
             when(a) {
-                is DoubleValue -> DoubleValue(a.value / this.value)
-                is IntValue -> DoubleValue(a.value / this.value)
+                is DoubleValue -> DoubleValue(this.value / a.value)
+                is IntValue -> DoubleValue(this.value / a.value)
             }
         }
     }

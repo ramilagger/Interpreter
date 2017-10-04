@@ -32,7 +32,7 @@ fun eval(s : Statement) {
             pw.println(eval(s.expr))
         }
         is IfStatement -> {
-            if(eval(s.ifExpr) != IntValue(0)){
+           if(eval(s.ifExpr) == BoolValue(true)) {
                 s.ifBlock.forEach {
                     eval(it)
                 }
@@ -43,10 +43,14 @@ fun eval(s : Statement) {
             }
         }
         is WhileStatement -> {
-            while (eval(s.expr) != IntValue(0)) {
+            var b = eval(s.expr)
+            while (b == BoolValue(true)) {
+                println(b)
                 s.whileBlock.forEach {
                     eval(it)
                 }
+                b = eval(s.expr)
+                println(b)
             }
         }
         is SemiColonStatement -> {

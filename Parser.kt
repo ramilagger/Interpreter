@@ -1,3 +1,4 @@
+import kotlin.reflect.jvm.internal.impl.resolve.constants.BooleanValue
 
 /**
  * Created by ramilagger on 7/23/17.
@@ -19,7 +20,15 @@ data class Constant(val a : NumberValue) : Expr()
 data class Variable(val name : String) : Expr()
 sealed class StringExpr : Expr()
 data class ConstantString(val a : StringValue) : StringExpr()
-sealed class BinaryExpressions
+
+// Binary expressions
+sealed class BExpr : Expr()
+//data class Variable(val a : Boolean)
+data class And(val a : BExpr, val b : BExpr) : BExpr()
+data class Or(val a : BExpr,val b : BExpr) : BExpr()
+data class LessThan(val a : Expr,val b : Expr) : BExpr()
+data class MoreThan(val a : Expr, val b : Expr) : BExpr()
+
 
 
 
@@ -56,15 +65,17 @@ fun eval(expr: Expr) : Value = when(expr) {
     is Constant -> expr.a
     is Variable -> memory[expr.name]!!
     is ConstantString -> expr.a
+    is LessThan -> {
+        val ans = eval(expr.a) < eval(expr.b)
+        BoolValue(ans)
+    }
+    is MoreThan -> {
+        val ans = eval(expr.a) < eval(expr.b)
+        BoolValue(ans)
+    }
+    else -> TODO()
 }
 
-// Binary expressions
-sealed class BExpr
-//data class Variable(val a : Boolean)
-data class And(val a : BExpr, val b : BExpr) : BExpr()
-data class Or(val a : BExpr,val b : BExpr) : BExpr()
-data class LessThan(val a : Expr,val b : Expr) : BExpr()
-data class MoreThan(val a : Expr, val b : Expr) : BExpr()
 
 
 class Parser(val tokens : List<Token>) {
@@ -127,7 +138,7 @@ class Parser(val tokens : List<Token>) {
     }
 
     private fun  parseWhile(): Statement {
-        val expr = additive()
+        val expr = conditional()
         var statements : ArrayList<Statement>
         if(peek(0) == CLP) {
             statements = parseCodeBlock()
@@ -223,6 +234,20 @@ class Parser(val tokens : List<Token>) {
     }
 
 
+    //private fun and() : Expr
+
+    private fun conditional(): Expr {
+        var expr = additive()
+        while (peek(0) == LessThanSign || peek(0) == MoreThanSign) {
+            next()  // skip operator
+            expr = if (peek(-1) == LessThanSign)
+                LessThan(expr, additive())
+            else
+                MoreThan(expr, additive())
+        }
+        return expr
+    }
+
 
     private fun additive(): Expr {
         var expr = multiplicative()
@@ -272,7 +297,7 @@ class Parser(val tokens : List<Token>) {
                 return Variable(temp.name)
             }
             is LP -> {
-                val res = additive()
+                val res = conditional()
                 next() // skip Right Parenthesis
                 return res
             }
