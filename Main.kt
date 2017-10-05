@@ -5,26 +5,33 @@ fun go() {
 
     memory["PI"] = DoubleValue(3.14)
 
-    var a = """
+    var program = """
             int a = 4 * 100;
+            int c = 6 / 2 * (2 + 1);
+            print(c);
             string b = 3 + 3 + "A" + ((4 * 5) / 10) + "76";
             print(a + b);
-            b = "Hello World!";
+            b = "Hello";
             int cnt = 1;
             string s = "1";
-            while(cnt < 11) {
+            bool all = true;
+            bool st = 9 != 10
+            print(st)
+            while(cnt < 10) {
+                if(cnt > 3 && cnt < 7)
                 print("iteration " + cnt + ": " + s);
                 cnt = cnt + 1;
+                all = cnt - 5 > 0;
                 s = s + ", " + cnt;
             }
-            if(1) print(b + (6 + 6));
+            if(5 > 2 + 2 * 2) print(b + (6 + 6));
             else {
             print("well 2 + 2 * 2 = " + (2 + 2 * 2));
-            print(b);
+            print(b + " World!");
             }
          """
 
-    Parser(Lexer(a).lex()).parse().forEach {
+    Parser(Lexer(program).lex()).parse().forEach {
         eval(it)
     }
 

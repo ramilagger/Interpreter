@@ -1,13 +1,16 @@
 
 /**
  * Created by ramilagger on 28/09/17.
+ *
  */
+
 sealed class Statement
 data class AssignmentStatement(val variable: Variable,val expected: Token, val expr: Expr) : Statement()
 data class PrintStatement(val expr: Expr) : Statement()
 data class IfStatement(val ifExpr : Expr,val ifBlock : List<Statement>,val elseBlock : List<Statement>?) : Statement()
 data class WhileStatement(val expr : Expr, val whileBlock : List<Statement>) : Statement()
 object SemiColonStatement : Statement()
+
 
 
 

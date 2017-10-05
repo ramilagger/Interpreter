@@ -17,15 +17,18 @@ object Else : Token()
 object CLP : Token()                                  // Curly LP
 object RLP : Token()
 object While : Token()
-object Equalility : Token()
+object Equality : Token()
 object NotEquality : Token()
+object Assign : Token()
 object LessThanSign : Token()
 object MoreThanSign : Token()
 object OR : Token()
 object AND : Token()
+object NOT : Token()
 
 object SemiColon : Token()
 object BooleanType : Token()
+data class BooleanToken(val value: Boolean) : Token()
 data class Var(val name : String) : Token()
 data class StringToken(val value: StringValue) : Token()
 data class Number(val value : NumberValue) : Token()
@@ -60,7 +63,7 @@ class Lexer(val text : String) {
                 tokens.add(parseString())
             if(peek(0) == a.toChar())
              tokens.add(parseChar())
-            else if ("+*-/(){};<>".indexOf(peek(0)) > -1)
+            else if ("+*-/(){};<>!=|&".indexOf(peek(0)) > -1)
                 tokens.add(parseOperator())
             else next()
         }
@@ -108,6 +111,8 @@ class Lexer(val text : String) {
             "if" -> If
             "else" -> Else
             "while" -> While
+            "true" -> BooleanToken(true) // creating object overhead ?
+            "false" -> BooleanToken(false)
             else -> Var(s)
         }
     }
@@ -144,20 +149,21 @@ class Lexer(val text : String) {
             '<' -> LessThanSign
             '>' -> MoreThanSign
             '|' -> {
-                if(peek(1) == '|') {
+                if(peek(0) == '|') {
                     next()
-                    Equalility
+                    OR
                 }
-                else throw RuntimeException("For now")
+                else throw UnsupportedOperationException()
             }
             '&' -> {
-                if(peek(1) == '&') {
+                if(peek(0) == '&') {
                     next()
-                    Equalility
+                    AND
                 }
-                else throw RuntimeException("For now")
+                else throw UnsupportedOperationException("For now")
             }
-
+            '!' -> if(peek(0) == '='){next(); NotEquality} else NOT
+            '=' -> if(peek(0) == '='){next(); Equality} else Assign
             else -> throw RuntimeException()
         }
     }

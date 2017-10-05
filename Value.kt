@@ -5,11 +5,11 @@
 sealed class Value {
 
 
-    fun toToken() = when (this) {
+    fun toToken() : Token = when (this) {
         is IntValue -> IntType
         is DoubleValue -> DoubleType
         is StringValue -> StringType
-        is BoolValue -> TODO()
+        is BoolValue -> BooleanType
         is CharValue -> CharType
     }
 
@@ -46,9 +46,9 @@ sealed class Value {
         is BoolValue -> TODO()
         is CharValue -> {
             when (a) {
-                is IntValue -> IntValue(a.value + this.value.toInt())
+                is IntValue -> IntValue(this.value.toInt() + a.value)
                 is DoubleValue -> TODO()
-                is StringValue -> StringValue(a.value + this.value)
+                is StringValue -> StringValue(this.value + a.value)
                 is BoolValue -> TODO()
                 is CharValue -> IntValue(a.value.toInt() + this.value.toInt())
             }
@@ -57,6 +57,8 @@ sealed class Value {
 
 
     operator fun compareTo(a: Value): Int = when (this) {
+
+
         is IntValue ->
             when (a) {
                 is IntValue -> this.value.compareTo(a.value)

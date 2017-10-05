@@ -6,7 +6,7 @@ import kotlin.reflect.jvm.internal.impl.resolve.constants.BooleanValue
  */
 
 // regexp grouping
-// https://docs.oracle.com/javase/tutorial/java/nutsandbolts/operators.html operator ordering
+// Operation ordering follows https://docs.oracle.com/javase/tutorial/java/nutsandbolts/operators.html operator ordering
 val memory = HashMap<String,Value>()
 
 
@@ -24,10 +24,15 @@ data class ConstantString(val a : StringValue) : StringExpr()
 // Binary expressions
 sealed class BExpr : Expr()
 //data class Variable(val a : Boolean)
-data class And(val a : BExpr, val b : BExpr) : BExpr()
-data class Or(val a : BExpr,val b : BExpr) : BExpr()
+object TRUE : BExpr()
+object FAlSE : BExpr()
+data class And(val a : Expr, val b : Expr) : BExpr()
+data class Or(val a : Expr,val b : Expr) : BExpr()
+data class Equals(val a : Expr,val b : Expr) : BExpr()
+data class NotEquals(val a : Expr,val b : Expr) : BExpr()
 data class LessThan(val a : Expr,val b : Expr) : BExpr()
 data class MoreThan(val a : Expr, val b : Expr) : BExpr()
+data class Not(val a : Expr) : BExpr()
 
 
 
@@ -70,10 +75,55 @@ fun eval(expr: Expr) : Value = when(expr) {
         BoolValue(ans)
     }
     is MoreThan -> {
-        val ans = eval(expr.a) < eval(expr.b)
+        val ans = eval(expr.a) > eval(expr.b)
         BoolValue(ans)
     }
-    else -> TODO()
+    is TRUE -> BoolValue(true)
+    is FAlSE -> BoolValue(false)
+    is Not -> {
+        val b = eval(expr.a)
+        if(b is BoolValue) BoolValue(!b.value)
+        else throw RuntimeException("Not applicable only for boolean values")
+    }
+    is Equals -> {
+        val a = eval(expr.a)
+        val b = eval(expr.b)
+        if(a.toToken() == b.toToken())
+            when(a) {
+                is BoolValue -> BoolValue(a.value == (b as BoolValue).value)
+                is IntValue ->BoolValue( a.value == (b as IntValue).value)
+                is DoubleValue ->BoolValue( a.value == (b as DoubleValue).value)
+                is StringValue -> BoolValue(a.value.equals((b as StringValue).value))
+                is CharValue -> BoolValue(a.value.equals((b as CharValue).value))
+        }else BoolValue(false)
+    }
+    is NotEquals -> {
+            val a = eval(expr.a)
+            val b = eval(expr.b)
+            if(a.toToken() == b.toToken())
+                when(a) {
+                    is BoolValue -> BoolValue(a.value != (b as BoolValue).value)
+                    is IntValue ->BoolValue( a.value != (b as IntValue).value)
+                    is DoubleValue ->BoolValue( a.value != (b as DoubleValue).value)
+                    is StringValue -> BoolValue(!a.value.equals((b as StringValue).value))
+                    is CharValue -> BoolValue(!a.value.equals((b as CharValue).value))
+                }else BoolValue(true)
+    }
+    is And -> {
+        val a = eval(expr.a)
+        val b = eval(expr.b)
+        if(a is BoolValue && b is BoolValue) {
+             BoolValue(a.value.and(b.value))
+        }else throw RuntimeException("And operator only supported for bool values ")
+    }
+    is Or -> {
+        val a = eval(expr.a)
+        val b = eval(expr.b)
+        if(a is BoolValue && b is BoolValue) {
+            BoolValue(a.value.or(b.value))
+        }else throw RuntimeException("And operator only supported for bool values ")
+    }
+    //else -> TODO()
 }
 
 
@@ -109,14 +159,14 @@ class Parser(val tokens : List<Token>) {
     fun parseStatement() : Statement {
         val token = peek(0)
         var st  = when(token) {
-            is IntType, is DoubleType,is StringType -> parseAssignment()
+            is IntType, is DoubleType,is StringType,is BooleanType -> parseAssignment()
             is Var ->  {
                 parseReAssignment()
                 //else throw RuntimeException("${token.name} undefined")
             }
             is Print -> {
                 next() // skip print
-                PrintStatement(additive())
+                PrintStatement(or())
 
             }
             is If -> {
@@ -138,7 +188,7 @@ class Parser(val tokens : List<Token>) {
     }
 
     private fun  parseWhile(): Statement {
-        val expr = conditional()
+        val expr = or()
         var statements : ArrayList<Statement>
         if(peek(0) == CLP) {
             statements = parseCodeBlock()
@@ -157,13 +207,14 @@ class Parser(val tokens : List<Token>) {
             var variable = Variable(a.name)
 
             next() // skip name
+            next() // skip equals
 
-            return AssignmentStatement(variable,a, additive())
+            return AssignmentStatement(variable,a, or())
         }
     }
 
     private fun  parseIfElse() : Statement {
-        val ifExpr = additive()
+        val ifExpr = or()
         var ifStatements : ArrayList<Statement>
         if(peek(0) == CLP) {
             ifStatements = parseCodeBlock()
@@ -204,7 +255,7 @@ class Parser(val tokens : List<Token>) {
                 is Var -> list.add(parseReAssignment())
                 is Print -> {
                     next()  // skip print
-                    list.add(PrintStatement(additive()))
+                    list.add(PrintStatement(or()))
                 }
                 is If -> {
                     next() // skip if
@@ -228,13 +279,42 @@ class Parser(val tokens : List<Token>) {
         else {
             var variable = Variable(a.name)
             next() // skip name
-
-            return AssignmentStatement(variable,type, additive())
+            next() // skip assign
+            return AssignmentStatement(variable,type, or())
         }
     }
 
-
     //private fun and() : Expr
+
+    private fun or() : Expr {
+        var expr = and()
+        while (peek(0) == OR) {
+            next()
+            expr = Or(expr,and())
+        }
+        return expr
+    }
+
+    private fun and() : Expr {
+        var expr = equality()
+        while (peek(0) == AND) {
+            next()  // skip operator
+            expr = And(expr, equality())
+        }
+        return expr
+    }
+
+    private fun equality() : Expr {
+        var expr = conditional()
+        while (peek(0) == Equality || peek(0) == NotEquality) {
+            next()  // skip operator
+            expr = if (peek(-1) == Equality)
+                Equals(expr, conditional())
+            else
+                NotEquals(expr, conditional())
+        }
+        return expr
+    }
 
     private fun conditional(): Expr {
         var expr = additive()
@@ -247,7 +327,6 @@ class Parser(val tokens : List<Token>) {
         }
         return expr
     }
-
 
     private fun additive(): Expr {
         var expr = multiplicative()
@@ -282,6 +361,10 @@ class Parser(val tokens : List<Token>) {
                 next()   // skip +
                 primary()
             }
+            NOT -> {
+                next()
+                Not(primary())
+            }
             else -> primary()
         }
     }
@@ -292,12 +375,13 @@ class Parser(val tokens : List<Token>) {
         when (temp) {
             is Number ->      return Constant(temp.value)
             is StringToken -> return ConstantString(temp.value)
+            is BooleanToken -> return if(temp.value) TRUE else FAlSE
             is Var -> {
                 //if(memory[temp.name] == null) throw Exception("${temp.name} is null")
                 return Variable(temp.name)
             }
             is LP -> {
-                val res = conditional()
+                val res = or()
                 next() // skip Right Parenthesis
                 return res
             }
