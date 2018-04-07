@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Window">
+  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+    <constraints>
+      <xy x="20" y="20" width="661" height="415"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <scrollpane id="6fc0d">
+        <constraints/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="62ce4" class="javax.swing.JTextPane" binding="textPane1" default-binding="true">
+            <constraints/>
+            <properties>
+              <minimumSize width="300" height="300"/>
+              <preferredSize width="500" height="350"/>
+              <text value="/*&#10;*  The following program demonstates all of the currently supported features press higlight to highlight code and generate ast to save genetated ast to file  &#10;*&#10;*/&#10;&#10;&#10;int max(int a int b) {&#10;    if(a &gt; b) return a;&#10;    return b&#10;}&#10;&#10;int main() {&#10;    int a = (4 * 5 + 1) / 3 - 1&#10;    a = a - 1 + 1&#10;    print(a)&#10;    char b = 'a';&#10;    // if(print(5))&#10;    double d = PI * 3;  // PI is declared as constant&#10;    while(d &lt; 50.4) d = d * 3&#10;    print(d);&#10;    print(b);&#10;    string s = &quot;string&quot; + a + a;&#10;    bool c = a == 6;&#10;    if(c || true &amp;&amp; !(a != 6)) print(&quot;a is equal to &quot; + 6);&#10;    else {&#10;    print(c);&#10;    }&#10;}"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <component id="832d3" class="javax.swing.JButton" binding="button1" default-binding="true">
+        <constraints/>
+        <properties>
+          <enabled value="true"/>
+          <hideActionText value="false"/>
+          <text value="Highlight"/>
+        </properties>
+      </component>
+      <scrollpane id="631a7">
+        <constraints/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="cd617" class="javax.swing.JTextPane" binding="textPane2" default-binding="true">
+            <constraints/>
+            <properties>
+              <editable value="false"/>
+              <minimumSize width="200" height="400"/>
+              <preferredSize width="500" height="180"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <component id="8ce32" class="javax.swing.JButton" binding="button2" default-binding="true">
+        <constraints/>
+        <properties>
+          <text value="Generate AST"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

@@ -5,7 +5,7 @@
 sealed class Value {
 
 
-    fun toToken() : Token = when (this) {
+    fun toToken(): Token = when (this) {
         is IntValue -> IntType
         is DoubleValue -> DoubleType
         is StringValue -> StringType
@@ -70,21 +70,20 @@ sealed class Value {
 }
 
 
-
 // + - / * TODO add %
 sealed class NumberValue : Value() {
 
 
-    operator fun minus(a: NumberValue): NumberValue = when(this) {
+    operator fun minus(a: NumberValue): NumberValue = when (this) {
         is IntValue -> {
-            when(a) {
+            when (a) {
                 is IntValue -> IntValue(this.value - a.value)
                 is DoubleValue -> DoubleValue(this.value - a.value)
 
             }
         }
         is DoubleValue -> {
-            when(a) {
+            when (a) {
                 is DoubleValue -> DoubleValue(this.value - a.value)
                 is IntValue -> DoubleValue(this.value - a.value)
             }
@@ -92,16 +91,15 @@ sealed class NumberValue : Value() {
     }
 
 
-
-    operator fun div(a: NumberValue): NumberValue = when(this) {
+    operator fun div(a: NumberValue): NumberValue = when (this) {
         is IntValue -> {
-            when(a) {
+            when (a) {
                 is IntValue -> IntValue(this.value / a.value)
                 is DoubleValue -> DoubleValue(this.value / a.value)
             }
         }
         is DoubleValue -> {
-            when(a) {
+            when (a) {
                 is DoubleValue -> DoubleValue(this.value / a.value)
                 is IntValue -> DoubleValue(this.value / a.value)
             }
@@ -109,15 +107,15 @@ sealed class NumberValue : Value() {
     }
 
 
-    operator fun times(a: NumberValue): NumberValue = when(this) {
+    operator fun times(a: NumberValue): NumberValue = when (this) {
         is IntValue -> {
-            when(a) {
+            when (a) {
                 is IntValue -> IntValue(a.value * this.value)
                 is DoubleValue -> DoubleValue(a.value * this.value)
             }
         }
         is DoubleValue -> {
-            when(a) {
+            when (a) {
                 is DoubleValue -> DoubleValue(a.value * this.value)
                 is IntValue -> DoubleValue(a.value * this.value)
             }
@@ -133,7 +131,7 @@ data class IntValue(val value: Int) : NumberValue() {
     }
 }
 
-data class DoubleValue(val value : Double) : NumberValue() {
+data class DoubleValue(val value: Double) : NumberValue() {
     override fun toString(): String {
         return value.toString()
     }
@@ -145,8 +143,14 @@ data class StringValue(val value: String) : Value() {
     }
 }
 
-data class BoolValue(val value: Boolean) : Value()
+data class BoolValue(val value: Boolean) : Value() {
+    override fun toString(): String {
+        return value.toString()
+    }
+}
 
-data class CharValue(val value: Char) : Value()
-
-
+data class CharValue(val value: Char) : Value() {
+    override fun toString(): String {
+        return value.toString()
+    }
+}
